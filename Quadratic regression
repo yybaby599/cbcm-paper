@@ -1,0 +1,58 @@
+# Fit a quadratic regression model (2nd degree polynomial)
+quad_coeffs = np.polyfit(df["ESG Performance Score"], df["Carbon footprint of the portfolio"], 2)
+quad_trend = np.poly1d(quad_coeffs)
+
+# Generate x values for the trend line
+x_vals = np.linspace(df["ESG Performance Score"].min(), df["ESG Performance Score"].max(), 100)
+y_vals_quad = quad_trend(x_vals)
+
+# Calculate R² for quadratic regression
+y_pred_quad = quad_trend(df["ESG Performance Score"])
+r2_quad = r2_score(df["Carbon footprint of the portfolio"], y_pred_quad)
+
+# Define a softer color palette
+soft_color_map = {
+    "Small Cap": "#A6CEE3",  # Light blue
+    "Mid Cap": "#B2DF8A",  # Light green
+    "Large Cap": "#FB9A99"  # Light red
+}
+
+# Create scatter plot with quadratic regression
+plt.figure(figsize=(10, 6))
+for category, color in soft_color_map.items():
+    subset = df[df["Market Cap Category"] == category]
+    plt.scatter(
+        subset["ESG Performance Score"],
+        subset["Carbon footprint of the portfolio"],
+        label=category,
+        color=color,
+        alpha=0.7,
+        marker="o",
+        s=30
+    )
+
+# Add quadratic trend line
+plt.plot(x_vals, y_vals_quad, color="#1F78B4", linestyle="-", linewidth=2, label="Quadratic Trend Line")
+
+# Add threshold lines
+plt.axvline(x=50, color="gray", linestyle="--", label="Prime Threshold (ESG = 50)")
+plt.axhline(y=2, color="gray", linestyle="--", label="Prime Threshold (Carbon Footprint = 2)")
+
+# Set y-axis limits to include all data
+plt.ylim(y_lower_limit, y_upper_limit)
+
+# Set x-axis limits to fit data better
+plt.xlim(max(0, x_min - 5), x_max + 5)
+
+# Labels and title
+plt.xlabel("ESG Performance Score")
+plt.ylabel("Carbon Footprint of the Portfolio")
+plt.title("ESG Performance vs. Carbon Footprint (Quadratic Fit)")
+plt.legend()
+plt.grid(True)
+
+# Show the plot
+plt.show()
+
+# Display R² for quadratic regression
+r2_quad
