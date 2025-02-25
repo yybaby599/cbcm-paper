@@ -1,0 +1,98 @@
+import matplotlib.pyplot as plt
+
+
+
+# Define color mapping for Market Cap Categories
+
+color_map = {
+
+    "Small Cap": "blue",
+
+    "Mid Cap": "green",
+
+    "Large Cap": "red"
+
+}
+
+
+
+# Assign colors based on Market Cap Category
+
+df["Color"] = df["Market Cap Category"].map(color_map)
+
+
+
+# Create scatter plot
+
+plt.figure(figsize=(10, 6))
+
+for category, color in color_map.items():
+
+    subset = df[df["Market Cap Category"] == category]
+
+    plt.scatter(
+
+        subset["ESG Performance Score"],
+
+        subset["Carbon footprint of the portfolio"],
+
+        label=category,
+
+        color=color,
+
+        alpha=0.7
+
+    )
+
+
+
+# Add threshold lines
+
+plt.axvline(x=50, color="black", linestyle="--", label="Prime Threshold (ESG = 50)")
+
+plt.axhline(y=2, color="black", linestyle="--", label="Prime Threshold (Carbon Footprint = 2)")
+
+
+
+# Labels and title
+
+plt.xlabel("ESG Performance Score")
+
+plt.ylabel("Carbon Footprint of the Portfolio")
+
+plt.title("ESG Performance vs. Carbon Footprint")
+
+plt.legend()
+
+plt.grid(True)
+
+
+
+# Show the plot
+
+plt.show()
+
+
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+
+# Prepare data for regression
+X = df["ESG Performance Score"].values.reshape(-1, 1)
+y = df["Carbon footprint of the portfolio"].values
+
+# Fit linear regression model
+lin_reg = LinearRegression()
+lin_reg.fit(X, y)
+
+# Get linear equation coefficients
+slope = lin_reg.coef_[0]
+intercept = lin_reg.intercept_
+
+# Predict y values
+y_pred = lin_reg.predict(X)
+
+# Calculate R² score
+r2 = r2_score(y, y_pred)
+
+# Display results
+slope, intercept, r2
