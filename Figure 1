@@ -96,3 +96,62 @@ r2 = r2_score(y, y_pred)
 
 # Display results
 slope, intercept, r2
+
+
+# Recalculate correlation since the session was reset
+blue = '#26538d'
+orange = '#fb7d07'
+green ='#009337'
+correlation = df["ESG Performance Score"].corr(df["Climate Impact of the corporate value chain"])
+
+
+# Assign colors to Market Cap categories 
+colors = {"Small Cap": green, "Mid Cap": orange, "Large Cap": blue}
+df["Color"] = df["Market Cap Category"].map(colors)
+
+
+# Swap x and y axes to reverse the plot
+plt.figure(figsize=(10, 6),dpi=600)
+for category, color in colors.items():
+   subset = df[df["Market Cap Category"] == category]
+   plt.scatter(subset["Climate Impact of the corporate value chain"], subset["ESG Performance Score"],
+               label=category, color=color, alpha=0.7, marker="o", s=30)
+
+# Fit a correlation line 
+m_inverted, b_inverted = np.polyfit(df["Climate Impact of the corporate value chain"], df["ESG Performance Score"], 1)
+x_vals_inverted = np.linspace(df["Climate Impact of the corporate value chain"].min(), df["Climate Impact of the corporate value chain"].max(), 100)
+y_vals_inverted = m_inverted * x_vals_inverted + b_inverted
+plt.plot(x_vals_inverted, y_vals_inverted, color="red", linestyle="dashed", label=f"Trend Line (corr={correlation:.2f})")
+# Add threshold lines 
+#plt.axvline(x=2, color="black", linestyle="dashed", linewidth=1, label="Prime Threshold (Carbon Footprint = 2)")
+#plt.axhline(y=50, color="black", linestyle="dashed", linewidth=1, label="Prime Threshold (ESG = 50)")
+
+
+# Add threshold lines for y-axis segmentation
+plt.axvline(x=1.75, color="black", linestyle="dashed", linewidth=1)
+plt.axvline(x=2.5, color="black", linestyle="dashed", linewidth=1)
+plt.axvline(x=3.25, color="black", linestyle="dashed", linewidth=1)
+plt.text(1.2, df["ESG Performance Score"].max() + 15, "Poor", verticalalignment='center', fontsize=10, color='black')
+plt.text(2, df["ESG Performance Score"].max() + 15, "Medium", verticalalignment='center', fontsize=10, color='black')
+plt.text(2.8, df["ESG Performance Score"].max() + 15, "Good", verticalalignment='center', fontsize=10, color='black')
+plt.text(3.58, df["ESG Performance Score"].max() + 15, "Excellent", verticalalignment='center', fontsize=10, color='black')
+
+
+# Adjust legend position to bottom right
+plt.legend(loc="lower right", bbox_to_anchor = (1.009,0.0001))
+
+
+y_lower_limit, y_upper_limit = 0,80
+plt.ylim(y_lower_limit, y_upper_limit)
+x_lower_limit, x_upper_limit = 0.9,4.1
+plt.xlim(x_lower_limit, x_upper_limit)
+
+
+# Labels and title (swapped axes)
+plt.xlabel("Climate impact of the corporate value chain",fontsize=15)
+plt.ylabel("ESG performance score", fontsize=15)
+#plt.title("Trend- Climate impact of the corporate value chain vs. ESG performance score", fontsize=17)
+#plt.grid(axis ='y')
+# Show the plot
+#plt.show()
+plt.savefig('/Users/liuxin/figure_1.png')
